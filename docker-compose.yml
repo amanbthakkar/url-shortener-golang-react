@@ -16,3 +16,10 @@ services:
     ports:
       - "6380:6379"
     restart: unless-stopped
+  
+  frontend:
+    build:
+      context: ./frontend_test/url-shortener-website
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
