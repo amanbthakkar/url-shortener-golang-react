@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  url-shortener:
+    build:
+      context: ./url-shortener
+    ports:
+      - "5000:3000"
+    depends_on:
+      - redis-server
+    restart: unless-stopped
+
+  redis-server:
+    build:
+      context: ./redis-server
+    ports:
+      - "6380:6379"
+    restart: unless-stopped
