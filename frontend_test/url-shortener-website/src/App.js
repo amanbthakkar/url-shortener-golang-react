@@ -51,6 +51,13 @@ function App() {
     }
   };
 
+  const formatInputURL = () => {
+    if (inputURL.length > 40) {
+      return `${inputURL.substring(0, 40)}...`;
+    }
+    return inputURL;
+  };
+
   return (
     <div className='container'>
       <div className='input-container'>
@@ -70,11 +77,12 @@ function App() {
       {outputURL && (
         <div className='output-url'>
           <p>
-            "{inputURL}" is shortened to "
-            <a href={`http://localhost:3000/${outputURL}`}>
-              amanthakkar.com/{outputURL}
-            </a>
-            "{' '}
+            <em>{formatInputURL()}</em> is shortened to{' '}
+            <span>
+              <a href={`http://localhost:3000/${outputURL}`}>
+                amanthakkar.com/{outputURL}
+              </a>
+            </span>{' '}
             <span role='img' aria-label='copy-icon' onClick={handleCopy}>
               📋
             </span>
