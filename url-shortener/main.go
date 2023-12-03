@@ -2,11 +2,11 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"sync"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/google/uuid"
 	"golang.org/x/net/context"
 )
@@ -30,6 +30,12 @@ func init() {
 
 func main() {
 	app := fiber.New()
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowMethods: "GET,POST,PUT,DELETE",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
 
 	app.Post("/", func(c *fiber.Ctx) error {
 		var requestData map[string]string
@@ -89,15 +95,10 @@ func main() {
 	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		// Get the shortened part of the URL from the request body
-		var requestData map[string]string
-		if err := c.BodyParser(&requestData); err != nil {
-			return c.Status(fiber.StatusBadRequest).SendString("Invalid JSON format")
-		}
-
-		shortened, ok := requestData["shortened"]
-		if !ok {
-			return c.Status(fiber.StatusBadRequest).SendString("Missing 'shortened' in request body")
+		// Get the shortened part of the URL from the query parameters
+		shortened := c.Query("shortened")
+		if shortened == "" {
+			return c.Status(fiber.StatusBadRequest).SendString("Missing 'shortened' in query parameters")
 		}
 
 		// Check if the shortened URL is present in the Redis hash (short to long)
@@ -112,7 +113,7 @@ func main() {
 		}
 
 		// Redirect to the original URL
-		return c.Redirect(originalURL, http.StatusFound)
+		return c.JSON(fiber.Map{"originalURL": originalURL})
 	})
 
 	app.Listen(":3000")
